@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Memory Maps — Psychogeographic Archive of Bishkek</title>
+  <meta name="description" content="A psychogeographic archive of daily routes through Bishkek.">
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header id="header">
+    <div class="header-left">
+      <h1 class="logo">MEMORY MAPS</h1>
+      <p class="subtitle">A Psychogeographic Archive of Bishkek</p>
+    </div>
+    <div class="header-right">
+      <button id="btn-toggle-panel" class="icon-btn" aria-label="Toggle panel">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect y="3" width="20" height="1.5" fill="currentColor"/>
+          <rect y="9.25" width="20" height="1.5" fill="currentColor"/>
+          <rect y="15.5" width="20" height="1.5" fill="currentColor"/>
+        </svg>
+      </button>
+      <button id="btn-auth" class="text-btn">ENTER</button>
+    </div>
+  </header>
+
+  <!-- Map -->
+  <div id="map"></div>
+
+  <!-- New Route FAB -->
+  <button id="btn-new-route" class="fab hidden" aria-label="New route">+</button>
+
+  <!-- Side Panel -->
+  <aside id="panel" class="panel">
+    <div class="panel-header">
+      <h2>COLLECTION</h2>
+      <span id="route-count" class="route-count">0 ROUTES</span>
+    </div>
+    <div class="panel-divider"></div>
+    <div id="route-list" class="route-list"></div>
+    <div class="panel-footer">
+      <button id="btn-export" class="text-btn-sm">EXPORT</button>
+      <button id="btn-import" class="text-btn-sm">IMPORT</button>
+      <input type="file" id="import-file" accept=".json,.geojson" class="hidden">
+    </div>
+  </aside>
+
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <h2>AUTHENTICATE</h2>
+      <p class="modal-desc">Enter passphrase to access editing.</p>
+      <input type="password" id="auth-input" placeholder="Passphrase" autocomplete="off">
+      <div id="auth-error" class="error-msg hidden">Invalid passphrase</div>
+      <div class="modal-actions">
+        <button id="btn-auth-cancel" class="text-btn-sm">CANCEL</button>
+        <button id="btn-auth-submit" class="text-btn-sm primary">ENTER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Route Form Modal -->
+  <div id="route-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content route-form">
+      <h2>NEW ROUTE</h2>
+      <label class="form-label">
+        TITLE
+        <input type="text" id="route-title" placeholder="Morning Drift #1">
+      </label>
+      <label class="form-label">
+        DATE
+        <input type="date" id="route-date">
+      </label>
+      <label class="form-label">
+        NOTES
+        <textarea id="route-notes" rows="3" placeholder="Observations, thoughts, atmosphere..."></textarea>
+      </label>
+      <p class="form-hint">Tap on the map to trace your path. Double-tap to finish.</p>
+      <div class="point-counter">
+        <span id="point-count">0</span> POINTS &middot; <span id="route-distance">0.0</span> KM
+      </div>
+      <div class="modal-actions">
+        <button id="btn-route-cancel" class="text-btn-sm">CANCEL</button>
+        <button id="btn-route-undo" class="text-btn-sm">UNDO</button>
+        <button id="btn-route-save" class="text-btn-sm primary">SAVE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Route Detail Modal -->
+  <div id="detail-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="detail-number" id="detail-number">01</div>
+      <h2 id="detail-title"></h2>
+      <div class="detail-meta">
+        <span id="detail-date"></span>
+        <span class="meta-sep">&middot;</span>
+        <span id="detail-distance"></span>
+      </div>
+      <p id="detail-notes" class="detail-notes"></p>
+      <div class="modal-actions">
+        <button id="btn-detail-close" class="text-btn-sm">CLOSE</button>
+        <button id="btn-detail-focus" class="text-btn-sm">FOCUS</button>
+        <button id="btn-detail-delete" class="text-btn-sm danger hidden">DELETE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drawing Mode Indicator -->
+  <div id="draw-indicator" class="draw-indicator hidden">
+    <div class="draw-pulse"></div>
+    <span>DRAWING — tap to add points</span>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
