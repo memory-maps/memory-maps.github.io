@@ -12,14 +12,13 @@
   const CONFIG = {
     center: [42.8746, 74.5698], // Bishkek
     zoom: 13,
-    // SHA-256 hash of the passphrase. Default: "memory"
-    // To change: open browser console, run:
-    //   crypto.subtle.digest('SHA-256', new TextEncoder().encode('YOUR_PASSPHRASE'))
-    //     .then(h => console.log(Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')))
-    passphraseHash: 'c064fbca9d9de8dd9bb0624984403b28d0da807a69365d4f7fb09123ecb0c405',
-    storageKey: 'memory_maps_routes',
-    authKey: 'memory_maps_auth',
+    repoOwner: 'memory-maps',
+    repoName: 'memory-maps.github.io',
+    dataPath: 'data/routes.json',
+    tokenKey: 'memory_maps_token',
   };
+
+  const API_BASE = `https://api.github.com/repos/${CONFIG.repoOwner}/${CONFIG.repoName}`;
 
   // MoMA-inspired palette for route colors
   const PALETTE = [
@@ -44,8 +43,10 @@
   let map;
   let routes = [];
   let routeLayers = {};
+  let githubToken = null;
   let isAuthenticated = false;
   let isDrawing = false;
+  let isSaving = false;
   let currentDrawing = {
     points: [],
     polyline: null,
@@ -59,7 +60,6 @@
   // ========================================================================
 
   const $ = (sel) => document.querySelector(sel);
-  const $$ = (sel) => document.querySelectorAll(sel);
 
   const dom = {
     map: $('#map'),
@@ -111,12 +111,13 @@
         });
   }
 
-  async function sha256(text) {
-    const data = new TextEncoder().encode(text);
-    const hash = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hash))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
+  function toBase64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
   }
 
   function haversineDistance(lat1, lon1, lat2, lon2) {
@@ -161,26 +162,107 @@
     return String(n).padStart(2, '0');
   }
 
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+  }
+
   // ========================================================================
-  // Storage
+  // GitHub API — Storage
   // ========================================================================
 
-  function loadRoutes() {
+  // Fetch routes from the public site (no auth needed)
+  async function fetchRoutesFromSite() {
     try {
-      const data = localStorage.getItem(CONFIG.storageKey);
-      routes = data ? JSON.parse(data) : [];
+      const resp = await fetch(`/${CONFIG.dataPath}?_=${Date.now()}`);
+      if (!resp.ok) return [];
+      return await resp.json();
     } catch {
-      routes = [];
+      return [];
     }
   }
 
-  function saveRoutes() {
-    localStorage.setItem(CONFIG.storageKey, JSON.stringify(routes));
+  // Get file SHA from GitHub API (needed for updates)
+  async function getFileSha() {
+    const resp = await fetch(`${API_BASE}/contents/${CONFIG.dataPath}`, {
+      headers: { Authorization: `Bearer ${githubToken}` },
+    });
+    if (!resp.ok) throw new Error('Could not read file from GitHub');
+    const data = await resp.json();
+    return data.sha;
   }
 
-  function checkAuth() {
-    isAuthenticated = sessionStorage.getItem(CONFIG.authKey) === 'true';
+  // Commit updated routes to the repo
+  async function commitRoutes(routes, message) {
+    const sha = await getFileSha();
+    const content = toBase64(JSON.stringify(routes, null, 2) + '\n');
+
+    const resp = await fetch(`${API_BASE}/contents/${CONFIG.dataPath}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${githubToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message, content, sha }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.message || 'Failed to save to GitHub');
+    }
+    return true;
+  }
+
+  // ========================================================================
+  // Auth — GitHub Token
+  // ========================================================================
+
+  function loadToken() {
+    githubToken = sessionStorage.getItem(CONFIG.tokenKey);
+    isAuthenticated = !!githubToken;
     updateAuthUI();
+  }
+
+  function updateAuthUI() {
+    if (isAuthenticated) {
+      dom.btnAuth.textContent = 'EXIT';
+      dom.btnNewRoute.classList.remove('hidden');
+    } else {
+      dom.btnAuth.textContent = 'ENTER';
+      dom.btnNewRoute.classList.add('hidden');
+    }
+    dom.btnDetailDelete.classList.toggle('hidden', !isAuthenticated);
+  }
+
+  async function authenticate(token) {
+    if (!token || !token.trim()) return false;
+    token = token.trim();
+
+    // Validate: try to read the data file from the repo
+    try {
+      const resp = await fetch(`${API_BASE}/contents/${CONFIG.dataPath}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!resp.ok) return false;
+
+      githubToken = token;
+      isAuthenticated = true;
+      sessionStorage.setItem(CONFIG.tokenKey, token);
+      updateAuthUI();
+      hideModal(dom.authModal);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function logout() {
+    githubToken = null;
+    isAuthenticated = false;
+    sessionStorage.removeItem(CONFIG.tokenKey);
+    updateAuthUI();
+    cancelDrawing();
   }
 
   // ========================================================================
@@ -195,7 +277,6 @@
       attributionControl: true,
     });
 
-    // Minimal CartoDB Positron tiles — clean, museum-like
     L.tileLayer(
       'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
       {
@@ -206,10 +287,8 @@
       }
     ).addTo(map);
 
-    // Zoom control — bottom left
     L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
-    // Map click for drawing
     map.on('click', onMapClick);
     map.on('dblclick', onMapDoubleClick);
   }
@@ -219,7 +298,6 @@
   // ========================================================================
 
   function renderRoutes() {
-    // Clear existing layers
     Object.values(routeLayers).forEach((layer) => map.removeLayer(layer));
     routeLayers = {};
 
@@ -235,31 +313,17 @@
           lineJoin: 'round',
         }).addTo(map);
 
-        // Start marker
         const startIcon = L.divIcon({
           className: '',
-          html: `<div style="
-            width: 10px; height: 10px;
-            background: ${color};
-            border: 2px solid white;
-            border-radius: 50%;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-          "></div>`,
+          html: `<div style="width:10px;height:10px;background:${color};border:2px solid white;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>`,
           iconSize: [10, 10],
           iconAnchor: [5, 5],
         });
         const startMarker = L.marker(route.coordinates[0], { icon: startIcon }).addTo(map);
 
-        // End marker
         const endIcon = L.divIcon({
           className: '',
-          html: `<div style="
-            width: 12px; height: 12px;
-            background: ${color};
-            border: 2px solid white;
-            border-radius: 1px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-          "></div>`,
+          html: `<div style="width:12px;height:12px;background:${color};border:2px solid white;border-radius:1px;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>`,
           iconSize: [12, 12],
           iconAnchor: [6, 6],
         });
@@ -268,7 +332,6 @@
           { icon: endIcon }
         ).addTo(map);
 
-        // Hover effects
         polyline.on('mouseover', function () {
           this.setStyle({ weight: 5, opacity: 1 });
         });
@@ -322,53 +385,9 @@
       })
       .join('');
 
-    // Attach click handlers
     list.querySelectorAll('.route-card').forEach((card) => {
-      card.addEventListener('click', () => {
-        showRouteDetail(card.dataset.id);
-      });
+      card.addEventListener('click', () => showRouteDetail(card.dataset.id));
     });
-  }
-
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text || '';
-    return div.innerHTML;
-  }
-
-  // ========================================================================
-  // Auth
-  // ========================================================================
-
-  function updateAuthUI() {
-    if (isAuthenticated) {
-      dom.btnAuth.textContent = 'EXIT';
-      dom.btnNewRoute.classList.remove('hidden');
-    } else {
-      dom.btnAuth.textContent = 'ENTER';
-      dom.btnNewRoute.classList.add('hidden');
-    }
-    // Show/hide delete in detail modal
-    dom.btnDetailDelete.classList.toggle('hidden', !isAuthenticated);
-  }
-
-  async function authenticate(passphrase) {
-    const hash = await sha256(passphrase);
-    if (hash === CONFIG.passphraseHash) {
-      isAuthenticated = true;
-      sessionStorage.setItem(CONFIG.authKey, 'true');
-      updateAuthUI();
-      hideModal(dom.authModal);
-      return true;
-    }
-    return false;
-  }
-
-  function logout() {
-    isAuthenticated = false;
-    sessionStorage.removeItem(CONFIG.authKey);
-    updateAuthUI();
-    cancelDrawing();
   }
 
   // ========================================================================
@@ -384,10 +403,11 @@
     dom.routeNotes.value = '';
     dom.pointCount.textContent = '0';
     dom.routeDistance.textContent = '0.0';
+    dom.btnRouteSave.textContent = 'SAVE';
+    dom.btnRouteSave.disabled = false;
     dom.routePanel.classList.remove('hidden');
     map.getContainer().style.cursor = 'crosshair';
 
-    // On mobile, collapse panel
     if (window.innerWidth <= 768) {
       dom.panel.classList.add('collapsed');
       panelOpen = false;
@@ -400,23 +420,15 @@
     const latlng = [e.latlng.lat, e.latlng.lng];
     currentDrawing.points.push(latlng);
 
-    // Add marker
     const markerIcon = L.divIcon({
       className: '',
-      html: `<div style="
-        width: 8px; height: 8px;
-        background: var(--black, #0a0a0a);
-        border: 2px solid white;
-        border-radius: 50%;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-      "></div>`,
+      html: `<div style="width:8px;height:8px;background:#0a0a0a;border:2px solid white;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.3)"></div>`,
       iconSize: [8, 8],
       iconAnchor: [4, 4],
     });
     const marker = L.marker(latlng, { icon: markerIcon }).addTo(map);
     currentDrawing.markers.push(marker);
 
-    // Update polyline
     if (currentDrawing.polyline) {
       currentDrawing.polyline.setLatLngs(currentDrawing.points);
     } else if (currentDrawing.points.length > 1) {
@@ -428,7 +440,6 @@
       }).addTo(map);
     }
 
-    // Update counters
     dom.pointCount.textContent = currentDrawing.points.length;
     dom.routeDistance.textContent = totalDistance(currentDrawing.points).toFixed(1);
   }
@@ -436,7 +447,6 @@
   function onMapDoubleClick(e) {
     if (!isDrawing) return;
     L.DomEvent.preventDefault(e);
-    // Don't finalize here, user saves via the form
   }
 
   function undoLastPoint() {
@@ -459,7 +469,9 @@
     dom.routeDistance.textContent = totalDistance(currentDrawing.points).toFixed(1);
   }
 
-  function saveRoute() {
+  async function saveRoute() {
+    if (isSaving) return;
+
     const name = dom.routeTitle.value.trim();
     const date = dom.routeDate.value;
     const notes = dom.routeNotes.value.trim();
@@ -470,9 +482,7 @@
       return;
     }
 
-    if (currentDrawing.points.length < 2) {
-      return;
-    }
+    if (currentDrawing.points.length < 2) return;
 
     const route = {
       id: uuid(),
@@ -488,11 +498,26 @@
       createdAt: new Date().toISOString(),
     };
 
-    routes.push(route);
-    saveRoutes();
-    finishDrawing();
-    renderRoutes();
-    renderRouteList();
+    // Save to GitHub
+    isSaving = true;
+    dom.btnRouteSave.textContent = 'SAVING...';
+    dom.btnRouteSave.disabled = true;
+
+    try {
+      const updated = [...routes, route];
+      await commitRoutes(updated, `Add route: ${name}`);
+      routes = updated;
+      finishDrawing();
+      renderRoutes();
+      renderRouteList();
+    } catch (err) {
+      console.error('Save failed:', err);
+      alert('Failed to save route: ' + err.message);
+      dom.btnRouteSave.textContent = 'SAVE';
+      dom.btnRouteSave.disabled = false;
+    } finally {
+      isSaving = false;
+    }
   }
 
   function cancelDrawing() {
@@ -505,7 +530,6 @@
     dom.routePanel.classList.add('hidden');
     map.getContainer().style.cursor = '';
 
-    // Clean up temporary drawing layers
     if (currentDrawing.polyline) map.removeLayer(currentDrawing.polyline);
     currentDrawing.markers.forEach((m) => map.removeLayer(m));
     currentDrawing = { points: [], polyline: null, markers: [] };
@@ -529,8 +553,6 @@
     dom.btnDetailDelete.classList.toggle('hidden', !isAuthenticated);
 
     showModal(dom.detailModal);
-
-    // Highlight route on map
     highlightRoute(routeId);
   }
 
@@ -538,11 +560,11 @@
     Object.entries(routeLayers).forEach(([id, layerGroup]) => {
       layerGroup.eachLayer((layer) => {
         if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
-          if (id === routeId) {
-            layer.setStyle({ weight: 5, opacity: 1 });
-          } else {
-            layer.setStyle({ weight: 3, opacity: 0.4 });
-          }
+          layer.setStyle(
+            id === routeId
+              ? { weight: 5, opacity: 1 }
+              : { weight: 3, opacity: 0.4 }
+          );
         }
       });
     });
@@ -572,14 +594,23 @@
     }
   }
 
-  function deleteRoute(routeId) {
+  async function deleteRoute(routeId) {
     if (!confirm('Remove this route from the collection?')) return;
-    routes = routes.filter((r) => r.id !== routeId);
-    saveRoutes();
-    hideModal(dom.detailModal);
-    resetHighlight();
-    renderRoutes();
-    renderRouteList();
+
+    const updated = routes.filter((r) => r.id !== routeId);
+
+    try {
+      const route = routes.find((r) => r.id === routeId);
+      await commitRoutes(updated, `Remove route: ${route ? route.name : routeId}`);
+      routes = updated;
+      hideModal(dom.detailModal);
+      resetHighlight();
+      renderRoutes();
+      renderRouteList();
+    } catch (err) {
+      console.error('Delete failed:', err);
+      alert('Failed to delete route: ' + err.message);
+    }
   }
 
   // ========================================================================
@@ -620,52 +651,60 @@
     URL.revokeObjectURL(url);
   }
 
-  function importRoutes(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target.result);
+  async function importRoutes(file) {
+    const text = await file.text();
+    try {
+      const data = JSON.parse(text);
+      const newRoutes = [];
 
-        if (data.type === 'FeatureCollection' && data.features) {
-          // GeoJSON format
-          data.features.forEach((feature) => {
-            if (feature.geometry && feature.geometry.type === 'LineString') {
-              const coords = feature.geometry.coordinates.map((c) => [c[1], c[0]]);
-              const props = feature.properties || {};
-              routes.push({
-                id: props.id || uuid(),
-                name: props.name || 'Imported Route',
-                date: props.date || new Date().toISOString().split('T')[0],
-                notes: props.notes || '',
-                coordinates: coords,
-                color: props.color || getColor(routes.length),
-                distance: props.distance || totalDistance(coords),
-                createdAt: props.createdAt || new Date().toISOString(),
-              });
-            }
-          });
-        } else if (Array.isArray(data)) {
-          // Raw array format (internal)
-          data.forEach((route) => {
-            if (route.coordinates && route.coordinates.length > 1) {
-              routes.push({
-                ...route,
-                id: route.id || uuid(),
-                color: route.color || getColor(routes.length),
-              });
-            }
-          });
-        }
-
-        saveRoutes();
-        renderRoutes();
-        renderRouteList();
-      } catch (err) {
-        console.error('Import failed:', err);
-        alert('Failed to import file. Please check the format.');
+      if (data.type === 'FeatureCollection' && data.features) {
+        data.features.forEach((feature) => {
+          if (feature.geometry && feature.geometry.type === 'LineString') {
+            const coords = feature.geometry.coordinates.map((c) => [c[1], c[0]]);
+            const props = feature.properties || {};
+            newRoutes.push({
+              id: props.id || uuid(),
+              name: props.name || 'Imported Route',
+              date: props.date || new Date().toISOString().split('T')[0],
+              notes: props.notes || '',
+              coordinates: coords,
+              color: props.color || getColor(routes.length + newRoutes.length),
+              distance: props.distance || totalDistance(coords),
+              createdAt: props.createdAt || new Date().toISOString(),
+            });
+          }
+        });
+      } else if (Array.isArray(data)) {
+        data.forEach((route) => {
+          if (route.coordinates && route.coordinates.length > 1) {
+            newRoutes.push({
+              ...route,
+              id: route.id || uuid(),
+              color: route.color || getColor(routes.length + newRoutes.length),
+            });
+          }
+        });
       }
-    };
-    reader.readAsText(file);
+
+      if (newRoutes.length === 0) {
+        alert('No valid routes found in file.');
+        return;
+      }
+
+      if (isAuthenticated) {
+        const updated = [...routes, ...newRoutes];
+        await commitRoutes(updated, `Import ${newRoutes.length} route(s)`);
+        routes = updated;
+      } else {
+        routes = [...routes, ...newRoutes];
+      }
+
+      renderRoutes();
+      renderRouteList();
+    } catch (err) {
+      console.error('Import failed:', err);
+      alert('Failed to import file. Please check the format.');
+    }
   }
 
   // ========================================================================
@@ -687,13 +726,12 @@
   // ========================================================================
 
   function bindEvents() {
-    // Panel toggle
     dom.btnTogglePanel.addEventListener('click', () => {
       panelOpen = !panelOpen;
       dom.panel.classList.toggle('collapsed', !panelOpen);
     });
 
-    // Auth button
+    // Auth
     dom.btnAuth.addEventListener('click', () => {
       if (isAuthenticated) {
         logout();
@@ -704,9 +742,12 @@
       }
     });
 
-    // Auth modal
     dom.btnAuthSubmit.addEventListener('click', async () => {
+      dom.btnAuthSubmit.textContent = 'CHECKING...';
+      dom.btnAuthSubmit.disabled = true;
       const ok = await authenticate(dom.authInput.value);
+      dom.btnAuthSubmit.textContent = 'ENTER';
+      dom.btnAuthSubmit.disabled = false;
       if (!ok) {
         dom.authError.classList.remove('hidden');
         dom.authInput.value = '';
@@ -720,13 +761,11 @@
 
     dom.btnAuthCancel.addEventListener('click', () => hideModal(dom.authModal));
 
-    // Backdrop clicks close modals
+    // Backdrop clicks
     document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
       backdrop.addEventListener('click', () => {
         const modal = backdrop.parentElement;
-        if (modal === dom.detailModal) {
-          resetHighlight();
-        }
+        if (modal === dom.detailModal) resetHighlight();
         hideModal(modal);
       });
     });
@@ -741,7 +780,6 @@
     dom.btnRouteSave.addEventListener('click', saveRoute);
     dom.btnRouteCancel.addEventListener('click', cancelDrawing);
     dom.btnRouteUndo.addEventListener('click', undoLastPoint);
-
     dom.routeTitle.addEventListener('input', () => {
       dom.routeTitle.style.borderColor = '';
     });
@@ -760,9 +798,7 @@
     });
 
     dom.btnDetailDelete.addEventListener('click', () => {
-      if (selectedRouteId && isAuthenticated) {
-        deleteRoute(selectedRouteId);
-      }
+      if (selectedRouteId && isAuthenticated) deleteRoute(selectedRouteId);
     });
 
     // Export / Import
@@ -775,7 +811,7 @@
       }
     });
 
-    // Keyboard shortcuts
+    // Keyboard
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (isDrawing) cancelDrawing();
@@ -784,14 +820,13 @@
           hideModal(m);
         });
       }
-      // Ctrl/Cmd + Z to undo while drawing
       if (isDrawing && (e.ctrlKey || e.metaKey) && e.key === 'z') {
         e.preventDefault();
         undoLastPoint();
       }
     });
 
-    // Mobile: swipe on panel handle
+    // Mobile: swipe panel
     let touchStartY = 0;
     dom.panel.addEventListener('touchstart', (e) => {
       touchStartY = e.touches[0].clientY;
@@ -800,42 +835,34 @@
     dom.panel.addEventListener('touchend', (e) => {
       const deltaY = e.changedTouches[0].clientY - touchStartY;
       if (Math.abs(deltaY) > 50) {
-        if (deltaY > 0) {
-          dom.panel.classList.add('collapsed');
-          panelOpen = false;
-        } else {
-          dom.panel.classList.remove('collapsed');
-          panelOpen = true;
-        }
+        panelOpen = deltaY <= 0;
+        dom.panel.classList.toggle('collapsed', !panelOpen);
       }
     }, { passive: true });
 
-    // Resize handling
-    window.addEventListener('resize', () => {
-      map.invalidateSize();
-    });
+    window.addEventListener('resize', () => map.invalidateSize());
   }
 
   // ========================================================================
   // Initialize
   // ========================================================================
 
-  function init() {
+  async function init() {
     initMap();
-    loadRoutes();
-    checkAuth();
-    renderRoutes();
-    renderRouteList();
+    loadToken();
     bindEvents();
 
-    // Start with panel open on desktop, collapsed on mobile
+    // Load routes from the repo (public, no auth needed)
+    routes = await fetchRoutesFromSite();
+    renderRoutes();
+    renderRouteList();
+
     if (window.innerWidth <= 768) {
       dom.panel.classList.add('collapsed');
       panelOpen = false;
     }
   }
 
-  // Start when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

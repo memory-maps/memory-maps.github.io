@@ -62,9 +62,14 @@
     <div class="modal-backdrop"></div>
     <div class="modal-content">
       <h2>AUTHENTICATE</h2>
-      <p class="modal-desc">Enter passphrase to access editing.</p>
-      <input type="password" id="auth-input" placeholder="Passphrase" autocomplete="off">
-      <div id="auth-error" class="error-msg hidden">Invalid passphrase</div>
+      <p class="modal-desc">Enter your GitHub Personal Access Token to save routes to the archive.</p>
+      <input type="password" id="auth-input" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+      <p class="form-hint" style="margin-top:8px">
+        Create a token at GitHub &rarr; Settings &rarr; Developer settings &rarr;
+        Fine-grained tokens. Grant <strong>Contents: Read &amp; Write</strong> access
+        to the memory-maps repo.
+      </p>
+      <div id="auth-error" class="error-msg hidden">Invalid token — could not access repository</div>
       <div class="modal-actions">
         <button id="btn-auth-cancel" class="text-btn-sm">CANCEL</button>
         <button id="btn-auth-submit" class="text-btn-sm primary">ENTER</button>
