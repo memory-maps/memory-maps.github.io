@@ -74,7 +74,7 @@
     authError: $('#auth-error'),
     btnAuthSubmit: $('#btn-auth-submit'),
     btnAuthCancel: $('#btn-auth-cancel'),
-    routeModal: $('#route-modal'),
+    routePanel: $('#route-panel'),
     routeTitle: $('#route-title'),
     routeDate: $('#route-date'),
     routeNotes: $('#route-notes'),
@@ -384,7 +384,7 @@
     dom.routeNotes.value = '';
     dom.pointCount.textContent = '0';
     dom.routeDistance.textContent = '0.0';
-    showModal(dom.routeModal);
+    dom.routePanel.classList.remove('hidden');
     map.getContainer().style.cursor = 'crosshair';
 
     // On mobile, collapse panel
@@ -502,7 +502,7 @@
   function finishDrawing() {
     isDrawing = false;
     dom.drawIndicator.classList.add('hidden');
-    hideModal(dom.routeModal);
+    dom.routePanel.classList.add('hidden');
     map.getContainer().style.cursor = '';
 
     // Clean up temporary drawing layers
@@ -724,9 +724,7 @@
     document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
       backdrop.addEventListener('click', () => {
         const modal = backdrop.parentElement;
-        if (modal === dom.routeModal && isDrawing) {
-          cancelDrawing();
-        } else if (modal === dom.detailModal) {
+        if (modal === dom.detailModal) {
           resetHighlight();
         }
         hideModal(modal);

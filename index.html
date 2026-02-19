@@ -72,32 +72,29 @@
     </div>
   </div>
 
-  <!-- Route Form Modal -->
-  <div id="route-modal" class="modal hidden">
-    <div class="modal-backdrop"></div>
-    <div class="modal-content route-form">
-      <h2>NEW ROUTE</h2>
-      <label class="form-label">
-        TITLE
-        <input type="text" id="route-title" placeholder="Morning Drift #1">
-      </label>
-      <label class="form-label">
-        DATE
-        <input type="date" id="route-date">
-      </label>
-      <label class="form-label">
-        NOTES
-        <textarea id="route-notes" rows="3" placeholder="Observations, thoughts, atmosphere..."></textarea>
-      </label>
-      <p class="form-hint">Tap on the map to trace your path. Double-tap to finish.</p>
-      <div class="point-counter">
-        <span id="point-count">0</span> POINTS &middot; <span id="route-distance">0.0</span> KM
-      </div>
-      <div class="modal-actions">
-        <button id="btn-route-cancel" class="text-btn-sm">CANCEL</button>
-        <button id="btn-route-undo" class="text-btn-sm">UNDO</button>
-        <button id="btn-route-save" class="text-btn-sm primary">SAVE</button>
-      </div>
+  <!-- Route Form (floating panel, no backdrop so map stays clickable) -->
+  <div id="route-panel" class="route-panel hidden">
+    <h2>NEW ROUTE</h2>
+    <label class="form-label">
+      TITLE
+      <input type="text" id="route-title" placeholder="Morning Drift #1">
+    </label>
+    <label class="form-label">
+      DATE
+      <input type="date" id="route-date">
+    </label>
+    <label class="form-label">
+      NOTES
+      <textarea id="route-notes" rows="2" placeholder="Observations, thoughts, atmosphere..."></textarea>
+    </label>
+    <p class="form-hint">Tap on the map to trace your path.</p>
+    <div class="point-counter">
+      <span id="point-count">0</span> POINTS &middot; <span id="route-distance">0.0</span> KM
+    </div>
+    <div class="modal-actions">
+      <button id="btn-route-cancel" class="text-btn-sm">CANCEL</button>
+      <button id="btn-route-undo" class="text-btn-sm">UNDO</button>
+      <button id="btn-route-save" class="text-btn-sm primary">SAVE</button>
     </div>
   </div>
 
