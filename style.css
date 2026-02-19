@@ -1,24 +1,28 @@
 /* ==========================================================================
-   MEMORY MAPS — MoMA-Inspired Design System
+   MEMORY MAPS — Occult-Cartographic Design System
    ========================================================================== */
 
 :root {
-  --black: #0a0a0a;
-  --white: #ffffff;
-  --gray-100: #f5f5f5;
-  --gray-200: #e8e8e8;
-  --gray-300: #d0d0d0;
-  --gray-400: #a0a0a0;
-  --gray-500: #6b6b6b;
-  --gray-600: #404040;
-  --red: #e63946;
-  --red-dark: #c1121f;
+  /* Dark occult palette */
+  --void: #08080f;
+  --obsidian: #0f0f18;
+  --smoke: #1a1a2e;
+  --ash: #2a2a3e;
+  --fog: #6a6a7e;
+  --silver: #8a8a9e;
+  --bone: #c8c5bc;
+  --gold: #c9a84c;
+  --gold-dim: rgba(201, 168, 76, 0.3);
+  --gold-glow: rgba(201, 168, 76, 0.15);
+  --ember: #d4543a;
+
+  --font-display: 'Cinzel', 'Times New Roman', serif;
   --font: 'Space Grotesk', -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --panel-width: 360px;
   --header-height: 64px;
   --radius: 2px;
-  --shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 /* Reset */
@@ -36,10 +40,24 @@ html, body {
 body {
   font-family: var(--font);
   font-size: 14px;
-  color: var(--black);
-  background: var(--white);
+  color: var(--bone);
+  background: var(--void);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Sacred Geometry — Seed of Life background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3Ccircle cx='100' cy='60' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3Ccircle cx='100' cy='140' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3Ccircle cx='65.36' cy='80' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3Ccircle cx='134.64' cy='80' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3Ccircle cx='65.36' cy='120' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3Ccircle cx='134.64' cy='120' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.03;
 }
 
 .hidden {
@@ -56,8 +74,8 @@ body {
   left: 0;
   right: 0;
   height: var(--header-height);
-  background: var(--white);
-  border-bottom: 1px solid var(--gray-200);
+  background: var(--obsidian);
+  border-bottom: 1px solid var(--ash);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -66,18 +84,20 @@ body {
 }
 
 .logo {
-  font-size: 18px;
+  font-family: var(--font-display);
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: 4px;
+  letter-spacing: 5px;
   line-height: 1;
+  color: var(--gold);
 }
 
 .subtitle {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 300;
-  letter-spacing: 1.5px;
-  color: var(--gray-500);
-  margin-top: 2px;
+  letter-spacing: 2px;
+  color: var(--fog);
+  margin-top: 3px;
   text-transform: uppercase;
 }
 
@@ -94,37 +114,37 @@ body {
 .icon-btn {
   width: 40px;
   height: 40px;
-  border: 1px solid var(--gray-200);
-  background: var(--white);
+  border: 1px solid var(--ash);
+  background: var(--obsidian);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--black);
+  color: var(--bone);
   transition: background 0.15s, border-color 0.15s;
 }
 
 .icon-btn:hover {
-  background: var(--gray-100);
-  border-color: var(--gray-300);
+  background: var(--smoke);
+  border-color: var(--fog);
 }
 
 .text-btn {
-  font-family: var(--font);
+  font-family: var(--font-display);
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   padding: 10px 20px;
-  border: 1px solid var(--black);
-  background: var(--white);
-  color: var(--black);
+  border: 1px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .text-btn:hover {
-  background: var(--black);
-  color: var(--white);
+  background: var(--gold);
+  color: var(--void);
 }
 
 .text-btn-sm {
@@ -133,35 +153,36 @@ body {
   font-weight: 600;
   letter-spacing: 2px;
   padding: 8px 16px;
-  border: 1px solid var(--gray-300);
-  background: var(--white);
-  color: var(--black);
+  border: 1px solid var(--ash);
+  background: transparent;
+  color: var(--bone);
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .text-btn-sm:hover {
-  border-color: var(--black);
+  border-color: var(--gold);
+  color: var(--gold);
 }
 
 .text-btn-sm.primary {
-  background: var(--black);
-  color: var(--white);
-  border-color: var(--black);
+  background: var(--gold);
+  color: var(--void);
+  border-color: var(--gold);
 }
 
 .text-btn-sm.primary:hover {
-  background: var(--gray-600);
+  background: #b8973f;
 }
 
 .text-btn-sm.danger {
-  color: var(--red);
-  border-color: var(--red);
+  color: var(--ember);
+  border-color: var(--ember);
 }
 
 .text-btn-sm.danger:hover {
-  background: var(--red);
-  color: var(--white);
+  background: var(--ember);
+  color: var(--bone);
 }
 
 /* FAB */
@@ -171,8 +192,8 @@ body {
   right: 32px;
   width: 56px;
   height: 56px;
-  background: var(--black);
-  color: var(--white);
+  background: var(--gold);
+  color: var(--void);
   border: none;
   font-size: 28px;
   font-weight: 300;
@@ -181,12 +202,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-lg);
-  transition: transform 0.2s, background 0.15s;
+  box-shadow: 0 4px 24px rgba(201, 168, 76, 0.3);
+  transition: transform 0.2s, box-shadow 0.15s;
 }
 
 .fab:hover {
   transform: scale(1.08);
+  box-shadow: 0 6px 32px rgba(201, 168, 76, 0.45);
 }
 
 .fab:active {
@@ -206,10 +228,11 @@ body {
   z-index: 1;
 }
 
-/* Clean up Leaflet controls */
+/* Leaflet controls — dark */
 .leaflet-control-zoom {
-  border: none !important;
+  border: 1px solid var(--ash) !important;
   box-shadow: var(--shadow) !important;
+  border-radius: 0 !important;
 }
 
 .leaflet-control-zoom a {
@@ -217,9 +240,10 @@ body {
   height: 36px !important;
   line-height: 36px !important;
   font-size: 16px !important;
-  color: var(--black) !important;
+  color: var(--bone) !important;
+  background: var(--obsidian) !important;
   border: none !important;
-  border-bottom: 1px solid var(--gray-200) !important;
+  border-bottom: 1px solid var(--ash) !important;
 }
 
 .leaflet-control-zoom a:last-child {
@@ -227,15 +251,44 @@ body {
 }
 
 .leaflet-control-zoom a:hover {
-  background: var(--gray-100) !important;
+  background: var(--smoke) !important;
+  color: var(--gold) !important;
 }
 
 .leaflet-control-attribution {
   font-family: var(--font) !important;
   font-size: 9px !important;
   letter-spacing: 0.5px !important;
-  background: rgba(255, 255, 255, 0.85) !important;
+  background: rgba(8, 8, 15, 0.85) !important;
+  color: var(--fog) !important;
   padding: 4px 8px !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--silver) !important;
+}
+
+/* ==========================================================================
+   Route Glow Effects
+   ========================================================================== */
+
+/* Leaflet SVG paths get a glow filter */
+.leaflet-overlay-pane svg {
+  filter: url(#route-glow);
+}
+
+.route-highlight {
+  stroke-opacity: 1 !important;
+  stroke-width: 5 !important;
+}
+
+/* Animated dash for selected/drawing routes */
+@keyframes dash-flow {
+  to { stroke-dashoffset: -24; }
+}
+
+.route-animated-dash {
+  animation: dash-flow 1s linear infinite;
 }
 
 /* ==========================================================================
@@ -248,8 +301,8 @@ body {
   right: 0;
   width: var(--panel-width);
   height: calc(100% - var(--header-height));
-  background: var(--white);
-  border-left: 1px solid var(--gray-200);
+  background: var(--obsidian);
+  border-left: 1px solid var(--ash);
   z-index: 800;
   display: flex;
   flex-direction: column;
@@ -270,21 +323,23 @@ body {
 }
 
 .panel-header h2 {
+  font-family: var(--font-display);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 3px;
+  color: var(--gold);
 }
 
 .route-count {
   font-size: 11px;
   font-weight: 400;
   letter-spacing: 1px;
-  color: var(--gray-400);
+  color: var(--fog);
 }
 
 .panel-divider {
   height: 1px;
-  background: var(--gray-200);
+  background: var(--ash);
   margin: 16px 24px;
 }
 
@@ -294,6 +349,7 @@ body {
   padding: 0 24px;
 }
 
+/* Dark scrollbar */
 .route-list::-webkit-scrollbar {
   width: 4px;
 }
@@ -303,15 +359,16 @@ body {
 }
 
 .route-list::-webkit-scrollbar-thumb {
-  background: var(--gray-300);
+  background: var(--gold-dim);
+  border-radius: 2px;
 }
 
 /* Route Card */
 .route-card {
   padding: 16px 0;
-  border-bottom: 1px solid var(--gray-100);
+  border-bottom: 1px solid var(--smoke);
   cursor: pointer;
-  transition: padding-left 0.15s;
+  transition: padding-left 0.15s, background 0.15s;
   display: flex;
   gap: 16px;
   align-items: flex-start;
@@ -326,9 +383,10 @@ body {
 }
 
 .route-number {
+  font-family: var(--font-display);
   font-size: 28px;
   font-weight: 300;
-  color: var(--gray-300);
+  color: var(--ash);
   line-height: 1;
   min-width: 40px;
   text-align: right;
@@ -348,12 +406,13 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--bone);
 }
 
 .route-card-meta {
   font-size: 11px;
   font-weight: 400;
-  color: var(--gray-500);
+  color: var(--fog);
   letter-spacing: 0.5px;
 }
 
@@ -363,13 +422,35 @@ body {
   min-height: 40px;
   border-radius: 2px;
   flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
 }
 
 .panel-footer {
   padding: 16px 24px;
-  border-top: 1px solid var(--gray-200);
+  border-top: 1px solid var(--ash);
   display: flex;
   gap: 8px;
+}
+
+/* Panel Epigraph */
+.panel-epigraph {
+  padding: 16px 24px;
+  border-top: 1px solid var(--smoke);
+  font-size: 10px;
+  font-style: italic;
+  color: var(--fog);
+  letter-spacing: 0.3px;
+  line-height: 1.6;
+  opacity: 0.7;
+}
+
+.panel-epigraph .epigraph-author {
+  display: block;
+  margin-top: 4px;
+  font-style: normal;
+  letter-spacing: 1px;
+  font-size: 9px;
+  color: var(--gold-dim);
 }
 
 /* ==========================================================================
@@ -388,30 +469,48 @@ body {
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(4px);
+  background: rgba(8, 8, 15, 0.88);
+  backdrop-filter: blur(8px);
 }
 
 .modal-content {
   position: relative;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
+  background: var(--obsidian);
+  border: 1px solid var(--ash);
   padding: 40px;
   max-width: 400px;
   width: 90%;
   box-shadow: var(--shadow-lg);
 }
 
+/* Noise/grain texture on modal panels */
+.modal-content::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background: repeating-radial-gradient(
+    circle at 50% 50%,
+    transparent 0,
+    var(--obsidian) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+}
+
 .modal-content h2 {
+  font-family: var(--font-display);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 3px;
   margin-bottom: 8px;
+  color: var(--gold);
 }
 
 .modal-desc {
   font-size: 13px;
-  color: var(--gray-500);
+  color: var(--fog);
   margin-bottom: 24px;
   line-height: 1.5;
 }
@@ -425,16 +524,28 @@ body {
   font-size: 14px;
   padding: 12px 0;
   border: none;
-  border-bottom: 1px solid var(--gray-300);
+  border-bottom: 1px solid var(--ash);
   outline: none;
   background: transparent;
+  color: var(--bone);
   transition: border-color 0.15s;
   letter-spacing: 0.5px;
 }
 
 .modal-content input:focus,
 .modal-content textarea:focus {
-  border-color: var(--black);
+  border-color: var(--gold);
+}
+
+.modal-content input::placeholder,
+.modal-content textarea::placeholder {
+  color: var(--fog);
+  opacity: 0.6;
+}
+
+/* Date input color fix for dark theme */
+.modal-content input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
 }
 
 .modal-content textarea {
@@ -451,7 +562,7 @@ body {
 
 .error-msg {
   font-size: 12px;
-  color: var(--red);
+  color: var(--ember);
   margin-top: 8px;
   letter-spacing: 0.5px;
 }
@@ -462,7 +573,7 @@ body {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 2px;
-  color: var(--gray-500);
+  color: var(--fog);
   margin-bottom: 20px;
 }
 
@@ -473,7 +584,7 @@ body {
 
 .form-hint {
   font-size: 12px;
-  color: var(--gray-400);
+  color: var(--fog);
   margin-top: 8px;
   line-height: 1.5;
   letter-spacing: 0.3px;
@@ -483,24 +594,25 @@ body {
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 2px;
-  color: var(--gray-500);
+  color: var(--fog);
   margin-top: 16px;
   padding: 12px 0;
-  border-top: 1px solid var(--gray-100);
+  border-top: 1px solid var(--smoke);
 }
 
 /* Route Detail */
 .detail-number {
+  font-family: var(--font-display);
   font-size: 64px;
   font-weight: 200;
-  color: var(--gray-200);
+  color: var(--ash);
   line-height: 1;
   margin-bottom: 8px;
 }
 
 .detail-meta {
   font-size: 12px;
-  color: var(--gray-500);
+  color: var(--fog);
   letter-spacing: 1px;
   margin-bottom: 20px;
 }
@@ -512,7 +624,7 @@ body {
 .detail-notes {
   font-size: 14px;
   line-height: 1.7;
-  color: var(--gray-600);
+  color: var(--silver);
   white-space: pre-wrap;
 }
 
@@ -525,8 +637,8 @@ body {
   top: calc(var(--header-height) + 16px);
   left: 16px;
   width: 320px;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
+  background: var(--obsidian);
+  border: 1px solid var(--ash);
   padding: 24px;
   z-index: 1200;
   box-shadow: var(--shadow-lg);
@@ -534,11 +646,29 @@ body {
   overflow-y: auto;
 }
 
+/* Noise texture on route panel */
+.route-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background: repeating-radial-gradient(
+    circle at 50% 50%,
+    transparent 0,
+    var(--obsidian) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+}
+
 .route-panel h2 {
+  font-family: var(--font-display);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 3px;
   margin-bottom: 16px;
+  color: var(--gold);
 }
 
 .route-panel .form-label {
@@ -553,16 +683,27 @@ body {
   font-size: 14px;
   padding: 10px 0;
   border: none;
-  border-bottom: 1px solid var(--gray-300);
+  border-bottom: 1px solid var(--ash);
   outline: none;
   background: transparent;
+  color: var(--bone);
   transition: border-color 0.15s;
   letter-spacing: 0.5px;
 }
 
+.route-panel input::placeholder,
+.route-panel textarea::placeholder {
+  color: var(--fog);
+  opacity: 0.6;
+}
+
+.route-panel input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+}
+
 .route-panel input:focus,
 .route-panel textarea:focus {
-  border-color: var(--black);
+  border-color: var(--gold);
 }
 
 .route-panel textarea {
@@ -599,8 +740,9 @@ body {
   top: calc(var(--header-height) + 16px);
   left: 50%;
   transform: translateX(-50%);
-  background: var(--black);
-  color: var(--white);
+  background: var(--obsidian);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
   padding: 10px 24px;
   font-size: 11px;
   font-weight: 600;
@@ -609,20 +751,20 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 24px rgba(201, 168, 76, 0.15);
 }
 
 .draw-pulse {
   width: 8px;
   height: 8px;
-  background: var(--red);
+  background: var(--gold);
   border-radius: 50%;
   animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.3); }
+  50% { opacity: 0.4; transform: scale(1.4); }
 }
 
 /* ==========================================================================
@@ -636,15 +778,16 @@ body {
 
 .empty-state-icon {
   font-size: 48px;
-  color: var(--gray-200);
+  color: var(--ash);
   margin-bottom: 16px;
 }
 
 .empty-state p {
   font-size: 12px;
-  color: var(--gray-400);
-  letter-spacing: 1px;
-  line-height: 1.6;
+  color: var(--fog);
+  letter-spacing: 0.5px;
+  line-height: 1.8;
+  font-style: italic;
 }
 
 /* ==========================================================================
@@ -662,12 +805,12 @@ body {
   }
 
   .logo {
-    font-size: 15px;
+    font-size: 16px;
     letter-spacing: 3px;
   }
 
   .subtitle {
-    font-size: 9px;
+    font-size: 8px;
     letter-spacing: 1px;
   }
 
@@ -680,10 +823,10 @@ body {
     width: 100%;
     height: 50vh;
     border-left: none;
-    border-top: 1px solid var(--gray-200);
+    border-top: 1px solid var(--ash);
     border-radius: 16px 16px 0 0;
     transform: translateY(0);
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
   }
 
   .panel.collapsed {
@@ -695,7 +838,7 @@ body {
     display: block;
     width: 40px;
     height: 4px;
-    background: var(--gray-300);
+    background: var(--ash);
     border-radius: 2px;
     margin: 12px auto;
   }
@@ -759,6 +902,8 @@ body {
   box-shadow: var(--shadow) !important;
   font-family: var(--font) !important;
   padding: 0 !important;
+  background: var(--obsidian) !important;
+  color: var(--bone) !important;
 }
 
 .leaflet-popup-content {
@@ -770,15 +915,28 @@ body {
 
 .leaflet-popup-tip {
   box-shadow: none !important;
+  background: var(--obsidian) !important;
 }
 
 /* ==========================================================================
-   Route line hover effect
+   Global Scrollbar
    ========================================================================== */
 
-.route-highlight {
-  stroke-opacity: 1 !important;
-  stroke-width: 5 !important;
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--void);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ash);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-dim);
 }
 
 /* ==========================================================================

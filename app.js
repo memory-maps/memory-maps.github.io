@@ -20,21 +20,36 @@
 
   const API_BASE = `https://api.github.com/repos/${CONFIG.repoOwner}/${CONFIG.repoName}`;
 
-  // MoMA-inspired palette for route colors
+  // Luminous / spectral palette for route colors
   const PALETTE = [
-    '#E63946', // Vermilion
-    '#457B9D', // Steel blue
-    '#2A9D8F', // Teal
-    '#E9C46A', // Saffron
-    '#264653', // Charcoal
-    '#F4A261', // Sandy brown
-    '#6A4C93', // Ultra violet
-    '#1D3557', // Prussian blue
-    '#D62828', // Fire engine red
-    '#023E8A', // Royal blue
-    '#9B2226', // Auburn
-    '#606C38', // Dark olive
+    '#ff6b6b', // Ruby light
+    '#4ecdc4', // Spectral teal
+    '#ffe66d', // Amber glow
+    '#a29bfe', // Lavender haze
+    '#fd79a8', // Rose quartz
+    '#74b9ff', // Cerulean
+    '#55efc4', // Emerald
+    '#e17055', // Burnt sienna
+    '#00cec9', // Cyan
+    '#fab1a0', // Pale coral
   ];
+
+  // ========================================================================
+  // Roman Numeral Conversion
+  // ========================================================================
+
+  function toRoman(num) {
+    const vals = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+    const syms = ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
+    let result = '';
+    for (let i = 0; i < vals.length; i++) {
+      while (num >= vals[i]) {
+        result += syms[i];
+        num -= vals[i];
+      }
+    }
+    return result;
+  }
 
   // ========================================================================
   // State
@@ -158,14 +173,36 @@
     return PALETTE[index % PALETTE.length];
   }
 
-  function padNumber(n) {
-    return String(n).padStart(2, '0');
-  }
-
   function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text || '';
     return div.innerHTML;
+  }
+
+  // ========================================================================
+  // Esoteric SVG Markers
+  // ========================================================================
+
+  function makeThirdEyeSVG(color) {
+    // Concentric circles with radiating lines — origin point of the drift
+    return `<svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="11" cy="11" r="9" fill="none" stroke="${color}" stroke-width="1" opacity="0.4"/>
+      <circle cx="11" cy="11" r="5" fill="none" stroke="${color}" stroke-width="1" opacity="0.7"/>
+      <circle cx="11" cy="11" r="2" fill="${color}"/>
+      <line x1="11" y1="0" x2="11" y2="4" stroke="${color}" stroke-width="0.8" opacity="0.5"/>
+      <line x1="11" y1="18" x2="11" y2="22" stroke="${color}" stroke-width="0.8" opacity="0.5"/>
+      <line x1="0" y1="11" x2="4" y2="11" stroke="${color}" stroke-width="0.8" opacity="0.5"/>
+      <line x1="18" y1="11" x2="22" y2="11" stroke="${color}" stroke-width="0.8" opacity="0.5"/>
+    </svg>`;
+  }
+
+  function makeSpiralSVG(color) {
+    // Spiral symbol — the vortex / destination
+    return `<svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 11 C11 9, 13 7, 15 9 C17 11, 15 15, 11 15 C7 15, 5 11, 7 7 C9 3, 15 3, 17 7 C19 11, 17 17, 11 19 C5 19, 3 13, 3 11"
+        fill="none" stroke="${color}" stroke-width="1.2" stroke-linecap="round"/>
+      <circle cx="11" cy="11" r="1.5" fill="${color}"/>
+    </svg>`;
   }
 
   // ========================================================================
@@ -226,10 +263,10 @@
 
   function updateAuthUI() {
     if (isAuthenticated) {
-      dom.btnAuth.textContent = 'EXIT';
+      dom.btnAuth.textContent = 'DISSOLVE';
       dom.btnNewRoute.classList.remove('hidden');
     } else {
-      dom.btnAuth.textContent = 'ENTER';
+      dom.btnAuth.textContent = 'INITIATE';
       dom.btnNewRoute.classList.add('hidden');
     }
     dom.btnDetailDelete.classList.toggle('hidden', !isAuthenticated);
@@ -277,8 +314,9 @@
       attributionControl: true,
     });
 
+    // CartoDB Dark Matter — dark, atmospheric map tiles
     L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
       {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
@@ -307,25 +345,28 @@
         const polyline = L.polyline(route.coordinates, {
           color: color,
           weight: 3,
-          opacity: 0.7,
+          opacity: 0.8,
           smoothFactor: 1.5,
           lineCap: 'round',
           lineJoin: 'round',
         }).addTo(map);
 
+        // Start marker: Third Eye — origin point of the drift
+        const goldColor = '#c9a84c';
         const startIcon = L.divIcon({
           className: '',
-          html: `<div style="width:10px;height:10px;background:${color};border:2px solid white;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>`,
-          iconSize: [10, 10],
-          iconAnchor: [5, 5],
+          html: makeThirdEyeSVG(goldColor),
+          iconSize: [22, 22],
+          iconAnchor: [11, 11],
         });
         const startMarker = L.marker(route.coordinates[0], { icon: startIcon }).addTo(map);
 
+        // End marker: Spiral — the vortex / destination
         const endIcon = L.divIcon({
           className: '',
-          html: `<div style="width:12px;height:12px;background:${color};border:2px solid white;border-radius:1px;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>`,
-          iconSize: [12, 12],
-          iconAnchor: [6, 6],
+          html: makeSpiralSVG(goldColor),
+          iconSize: [22, 22],
+          iconAnchor: [11, 11],
         });
         const endMarker = L.marker(
           route.coordinates[route.coordinates.length - 1],
@@ -337,7 +378,7 @@
         });
         polyline.on('mouseout', function () {
           if (selectedRouteId !== route.id) {
-            this.setStyle({ weight: 3, opacity: 0.7 });
+            this.setStyle({ weight: 3, opacity: 0.8 });
           }
         });
         polyline.on('click', function (e) {
@@ -356,13 +397,13 @@
 
   function renderRouteList() {
     const list = dom.routeList;
-    dom.routeCount.textContent = `${routes.length} ROUTE${routes.length !== 1 ? 'S' : ''}`;
+    dom.routeCount.textContent = `${routes.length} D\u00c9RIVE${routes.length !== 1 ? 'S' : ''}`;
 
     if (routes.length === 0) {
       list.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">&mdash;</div>
-          <p>NO ROUTES YET<br>Begin documenting your paths.</p>
+          <p>&ldquo;In a d&eacute;rive one or more persons during a certain period drop their relations, their work and leisure activities, and let themselves be drawn by the attractions of the terrain and the encounters they find there.&rdquo;<br><br>&mdash; Guy Debord</p>
         </div>
       `;
       return;
@@ -374,8 +415,8 @@
         const color = route.color || getColor(index);
         return `
           <div class="route-card" data-id="${route.id}">
-            <div class="route-color-bar" style="background:${color}"></div>
-            <div class="route-number">${padNumber(index + 1)}</div>
+            <div class="route-color-bar" style="background:${color};color:${color}"></div>
+            <div class="route-number">${toRoman(index + 1)}</div>
             <div class="route-info">
               <div class="route-card-title">${escapeHtml(route.name)}</div>
               <div class="route-card-meta">${formatDate(route.date)} &middot; ${dist} km</div>
@@ -403,7 +444,7 @@
     dom.routeNotes.value = '';
     dom.pointCount.textContent = '0';
     dom.routeDistance.textContent = '0.0';
-    dom.btnRouteSave.textContent = 'SAVE';
+    dom.btnRouteSave.textContent = 'INSCRIBE';
     dom.btnRouteSave.disabled = false;
     dom.routePanel.classList.remove('hidden');
     map.getContainer().style.cursor = 'crosshair';
@@ -420,9 +461,11 @@
     const latlng = [e.latlng.lat, e.latlng.lng];
     currentDrawing.points.push(latlng);
 
+    // Gold drawing markers
+    const goldColor = '#c9a84c';
     const markerIcon = L.divIcon({
       className: '',
-      html: `<div style="width:8px;height:8px;background:#0a0a0a;border:2px solid white;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.3)"></div>`,
+      html: `<div style="width:8px;height:8px;background:${goldColor};border:2px solid rgba(201,168,76,0.3);border-radius:50%;box-shadow:0 0 6px rgba(201,168,76,0.4)"></div>`,
       iconSize: [8, 8],
       iconAnchor: [4, 4],
     });
@@ -433,7 +476,7 @@
       currentDrawing.polyline.setLatLngs(currentDrawing.points);
     } else if (currentDrawing.points.length > 1) {
       currentDrawing.polyline = L.polyline(currentDrawing.points, {
-        color: '#0a0a0a',
+        color: goldColor,
         weight: 3,
         opacity: 0.8,
         dashArray: '8 4',
@@ -477,7 +520,7 @@
     const notes = dom.routeNotes.value.trim();
 
     if (!name) {
-      dom.routeTitle.style.borderColor = '#e63946';
+      dom.routeTitle.style.borderColor = '#d4543a';
       dom.routeTitle.focus();
       return;
     }
@@ -500,20 +543,20 @@
 
     // Save to GitHub
     isSaving = true;
-    dom.btnRouteSave.textContent = 'SAVING...';
+    dom.btnRouteSave.textContent = 'INSCRIBING...';
     dom.btnRouteSave.disabled = true;
 
     try {
       const updated = [...routes, route];
-      await commitRoutes(updated, `Add route: ${name}`);
+      await commitRoutes(updated, `Add dérive: ${name}`);
       routes = updated;
       finishDrawing();
       renderRoutes();
       renderRouteList();
     } catch (err) {
       console.error('Save failed:', err);
-      alert('Failed to save route: ' + err.message);
-      dom.btnRouteSave.textContent = 'SAVE';
+      alert('Failed to inscribe dérive: ' + err.message);
+      dom.btnRouteSave.textContent = 'INSCRIBE';
       dom.btnRouteSave.disabled = false;
     } finally {
       isSaving = false;
@@ -545,7 +588,7 @@
     const route = routes[index];
     selectedRouteId = routeId;
 
-    dom.detailNumber.textContent = padNumber(index + 1);
+    dom.detailNumber.textContent = toRoman(index + 1);
     dom.detailTitle.textContent = route.name;
     dom.detailDate.textContent = formatDate(route.date);
     dom.detailDistance.textContent = `${(route.distance || 0).toFixed(1)} km`;
@@ -563,7 +606,7 @@
           layer.setStyle(
             id === routeId
               ? { weight: 5, opacity: 1 }
-              : { weight: 3, opacity: 0.4 }
+              : { weight: 3, opacity: 0.3 }
           );
         }
       });
@@ -575,7 +618,7 @@
     Object.values(routeLayers).forEach((layerGroup) => {
       layerGroup.eachLayer((layer) => {
         if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
-          layer.setStyle({ weight: 3, opacity: 0.7 });
+          layer.setStyle({ weight: 3, opacity: 0.8 });
         }
       });
     });
@@ -595,13 +638,13 @@
   }
 
   async function deleteRoute(routeId) {
-    if (!confirm('Remove this route from the collection?')) return;
+    if (!confirm('Erase this dérive from the archive?')) return;
 
     const updated = routes.filter((r) => r.id !== routeId);
 
     try {
       const route = routes.find((r) => r.id === routeId);
-      await commitRoutes(updated, `Remove route: ${route ? route.name : routeId}`);
+      await commitRoutes(updated, `Remove dérive: ${route ? route.name : routeId}`);
       routes = updated;
       hideModal(dom.detailModal);
       resetHighlight();
@@ -609,7 +652,7 @@
       renderRouteList();
     } catch (err) {
       console.error('Delete failed:', err);
-      alert('Failed to delete route: ' + err.message);
+      alert('Failed to erase dérive: ' + err.message);
     }
   }
 
@@ -664,7 +707,7 @@
             const props = feature.properties || {};
             newRoutes.push({
               id: props.id || uuid(),
-              name: props.name || 'Imported Route',
+              name: props.name || 'Imported Dérive',
               date: props.date || new Date().toISOString().split('T')[0],
               notes: props.notes || '',
               coordinates: coords,
@@ -687,13 +730,13 @@
       }
 
       if (newRoutes.length === 0) {
-        alert('No valid routes found in file.');
+        alert('No valid dérives found in file.');
         return;
       }
 
       if (isAuthenticated) {
         const updated = [...routes, ...newRoutes];
-        await commitRoutes(updated, `Import ${newRoutes.length} route(s)`);
+        await commitRoutes(updated, `Import ${newRoutes.length} dérive(s)`);
         routes = updated;
       } else {
         routes = [...routes, ...newRoutes];
@@ -746,7 +789,7 @@
       dom.btnAuthSubmit.textContent = 'CHECKING...';
       dom.btnAuthSubmit.disabled = true;
       const ok = await authenticate(dom.authInput.value);
-      dom.btnAuthSubmit.textContent = 'ENTER';
+      dom.btnAuthSubmit.textContent = 'INITIATE';
       dom.btnAuthSubmit.disabled = false;
       if (!ok) {
         dom.authError.classList.remove('hidden');

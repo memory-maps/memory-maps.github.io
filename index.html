@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Memory Maps — Psychogeographic Archive of Bishkek</title>
-  <meta name="description" content="A psychogeographic archive of daily routes through Bishkek.">
+  <title>Memory Maps — Cartography of the Unseen</title>
+  <meta name="description" content="A psychogeographic archive of dérives through Bishkek. Cartography of the unseen.">
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,17 +12,30 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+  <!-- SVG filter for route glow (referenced by CSS) -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <filter id="route-glow">
+        <feGaussianBlur stdDeviation="2" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+  </svg>
+
   <!-- Header -->
   <header id="header">
     <div class="header-left">
       <h1 class="logo">MEMORY MAPS</h1>
-      <p class="subtitle">A Psychogeographic Archive of Bishkek</p>
+      <p class="subtitle">Cartography of the Unseen · Bishkek</p>
     </div>
     <div class="header-right">
       <button id="btn-toggle-panel" class="icon-btn" aria-label="Toggle panel">
@@ -32,7 +45,7 @@
           <rect y="15.5" width="20" height="1.5" fill="currentColor"/>
         </svg>
       </button>
-      <button id="btn-auth" class="text-btn">ENTER</button>
+      <button id="btn-auth" class="text-btn">INITIATE</button>
     </div>
   </header>
 
@@ -40,13 +53,13 @@
   <div id="map"></div>
 
   <!-- New Route FAB -->
-  <button id="btn-new-route" class="fab hidden" aria-label="New route">+</button>
+  <button id="btn-new-route" class="fab hidden" aria-label="Inscribe new dérive">+</button>
 
   <!-- Side Panel -->
   <aside id="panel" class="panel">
     <div class="panel-header">
-      <h2>COLLECTION</h2>
-      <span id="route-count" class="route-count">0 ROUTES</span>
+      <h2>ARCHIVE OF D&Eacute;RIVES</h2>
+      <span id="route-count" class="route-count">0 D&Eacute;RIVES</span>
     </div>
     <div class="panel-divider"></div>
     <div id="route-list" class="route-list"></div>
@@ -55,14 +68,18 @@
       <button id="btn-import" class="text-btn-sm">IMPORT</button>
       <input type="file" id="import-file" accept=".json,.geojson" class="hidden">
     </div>
+    <div class="panel-epigraph">
+      &ldquo;The spectacle is not a collection of images; it is a social relation between people, mediated by images.&rdquo;
+      <span class="epigraph-author">&mdash; Guy Debord</span>
+    </div>
   </aside>
 
   <!-- Auth Modal -->
   <div id="auth-modal" class="modal hidden">
     <div class="modal-backdrop"></div>
     <div class="modal-content">
-      <h2>AUTHENTICATE</h2>
-      <p class="modal-desc">Enter your GitHub Personal Access Token to save routes to the archive.</p>
+      <h2>INITIATION</h2>
+      <p class="modal-desc">Enter your GitHub Personal Access Token to inscribe dérives into the archive.</p>
       <input type="password" id="auth-input" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
       <p class="form-hint" style="margin-top:8px">
         Create a token at GitHub &rarr; Settings &rarr; Developer settings &rarr;
@@ -72,14 +89,14 @@
       <div id="auth-error" class="error-msg hidden">Invalid token — could not access repository</div>
       <div class="modal-actions">
         <button id="btn-auth-cancel" class="text-btn-sm">CANCEL</button>
-        <button id="btn-auth-submit" class="text-btn-sm primary">ENTER</button>
+        <button id="btn-auth-submit" class="text-btn-sm primary">INITIATE</button>
       </div>
     </div>
   </div>
 
   <!-- Route Form (floating panel, no backdrop so map stays clickable) -->
   <div id="route-panel" class="route-panel hidden">
-    <h2>NEW ROUTE</h2>
+    <h2>INSCRIBE D&Eacute;RIVE</h2>
     <label class="form-label">
       TITLE
       <input type="text" id="route-title" placeholder="Morning Drift #1">
@@ -90,16 +107,16 @@
     </label>
     <label class="form-label">
       NOTES
-      <textarea id="route-notes" rows="2" placeholder="Observations, thoughts, atmosphere..."></textarea>
+      <textarea id="route-notes" rows="2" placeholder="Psychic resonance, liminal encounters, atmospheric shifts..."></textarea>
     </label>
-    <p class="form-hint">Tap on the map to trace your path.</p>
+    <p class="form-hint">Touch the map to trace your passage through the city.</p>
     <div class="point-counter">
       <span id="point-count">0</span> POINTS &middot; <span id="route-distance">0.0</span> KM
     </div>
     <div class="modal-actions">
       <button id="btn-route-cancel" class="text-btn-sm">CANCEL</button>
       <button id="btn-route-undo" class="text-btn-sm">UNDO</button>
-      <button id="btn-route-save" class="text-btn-sm primary">SAVE</button>
+      <button id="btn-route-save" class="text-btn-sm primary">INSCRIBE</button>
     </div>
   </div>
 
@@ -107,7 +124,7 @@
   <div id="detail-modal" class="modal hidden">
     <div class="modal-backdrop"></div>
     <div class="modal-content">
-      <div class="detail-number" id="detail-number">01</div>
+      <div class="detail-number" id="detail-number">I</div>
       <h2 id="detail-title"></h2>
       <div class="detail-meta">
         <span id="detail-date"></span>
@@ -126,7 +143,7 @@
   <!-- Drawing Mode Indicator -->
   <div id="draw-indicator" class="draw-indicator hidden">
     <div class="draw-pulse"></div>
-    <span>DRAWING — tap to add points</span>
+    <span>CHANNELING &mdash; trace the drift</span>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
