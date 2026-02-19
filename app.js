@@ -20,19 +20,46 @@
 
   const API_BASE = `https://api.github.com/repos/${CONFIG.repoOwner}/${CONFIG.repoName}`;
 
-  // Luminous / spectral palette for route colors
+  // Modern art master colors — rich, curated palette
   const PALETTE = [
-    '#ff6b6b', // Ruby light
-    '#4ecdc4', // Spectral teal
-    '#ffe66d', // Amber glow
-    '#a29bfe', // Lavender haze
-    '#fd79a8', // Rose quartz
-    '#74b9ff', // Cerulean
-    '#55efc4', // Emerald
-    '#e17055', // Burnt sienna
-    '#00cec9', // Cyan
-    '#fab1a0', // Pale coral
+    '#b5342a', // Rothko crimson
+    '#1a4f8a', // Klein ultramarine
+    '#2a7a6f', // Hockney teal
+    '#8a6b2a', // Klee ochre
+    '#6a3a7a', // Purple haze
+    '#c47a32', // Matisse orange
+    '#2a5a4a', // Deep green
+    '#8a3a4a', // Burgundy
+    '#3a6a8a', // Steel
+    '#5a4a3a', // Umber
   ];
+
+  // Situationist quotes — rotate on each page load
+  const QUOTES = [
+    {
+      text: 'In a d\u00e9rive one or more persons drop their relations, their work and leisure activities, and let themselves be drawn by the attractions of the terrain.',
+      author: 'Guy Debord',
+    },
+    {
+      text: 'The spectacle is not a collection of images; it is a social relation between people, mediated by images.',
+      author: 'Guy Debord',
+    },
+    {
+      text: 'Architecture is the simplest means of articulating time and space, of modulating reality, of engendering dreams.',
+      author: 'Ivan Chtcheglov',
+    },
+    {
+      text: 'We are bored in the city, we really have to strain to discover mysteries on the sidewalk billboards.',
+      author: 'Ivan Chtcheglov',
+    },
+    {
+      text: 'The new beauty will be situational \u2014 that is to say, provisional and lived.',
+      author: 'Guy Debord',
+    },
+  ];
+
+  // Ink color for markers (thin black line art)
+  const INK = '#1a1918';
 
   // ========================================================================
   // Roman Numeral Conversion
@@ -104,6 +131,7 @@
     detailDate: $('#detail-date'),
     detailDistance: $('#detail-distance'),
     detailNotes: $('#detail-notes'),
+    detailCoordinates: $('#detail-coordinates'),
     btnDetailClose: $('#btn-detail-close'),
     btnDetailFocus: $('#btn-detail-focus'),
     btnDetailDelete: $('#btn-detail-delete'),
@@ -111,6 +139,9 @@
     btnExport: $('#btn-export'),
     btnImport: $('#btn-import'),
     importFile: $('#import-file'),
+    coordReadout: $('#coord-readout'),
+    epigraphText: $('#epigraph-text'),
+    epigraphAuthor: $('#epigraph-author'),
   };
 
   // ========================================================================
@@ -179,29 +210,35 @@
     return div.innerHTML;
   }
 
+  function formatCoord(lat, lng) {
+    const ns = lat >= 0 ? 'N' : 'S';
+    const ew = lng >= 0 ? 'E' : 'W';
+    return `${Math.abs(lat).toFixed(4)}\u00b0${ns}, ${Math.abs(lng).toFixed(4)}\u00b0${ew}`;
+  }
+
   // ========================================================================
-  // Esoteric SVG Markers
+  // Esoteric SVG Markers — thin black line art, museum-quality
   // ========================================================================
 
   function makeThirdEyeSVG(color) {
-    // Concentric circles with radiating lines — origin point of the drift
+    // Concentric circles with radiating lines — compass rose / origin point
     return `<svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="11" cy="11" r="9" fill="none" stroke="${color}" stroke-width="1" opacity="0.4"/>
-      <circle cx="11" cy="11" r="5" fill="none" stroke="${color}" stroke-width="1" opacity="0.7"/>
-      <circle cx="11" cy="11" r="2" fill="${color}"/>
-      <line x1="11" y1="0" x2="11" y2="4" stroke="${color}" stroke-width="0.8" opacity="0.5"/>
-      <line x1="11" y1="18" x2="11" y2="22" stroke="${color}" stroke-width="0.8" opacity="0.5"/>
-      <line x1="0" y1="11" x2="4" y2="11" stroke="${color}" stroke-width="0.8" opacity="0.5"/>
-      <line x1="18" y1="11" x2="22" y2="11" stroke="${color}" stroke-width="0.8" opacity="0.5"/>
+      <circle cx="11" cy="11" r="9" fill="none" stroke="${color}" stroke-width="0.8" opacity="0.4"/>
+      <circle cx="11" cy="11" r="5" fill="none" stroke="${color}" stroke-width="0.8" opacity="0.7"/>
+      <circle cx="11" cy="11" r="1.5" fill="${color}"/>
+      <line x1="11" y1="0" x2="11" y2="4" stroke="${color}" stroke-width="0.6" opacity="0.5"/>
+      <line x1="11" y1="18" x2="11" y2="22" stroke="${color}" stroke-width="0.6" opacity="0.5"/>
+      <line x1="0" y1="11" x2="4" y2="11" stroke="${color}" stroke-width="0.6" opacity="0.5"/>
+      <line x1="18" y1="11" x2="22" y2="11" stroke="${color}" stroke-width="0.6" opacity="0.5"/>
     </svg>`;
   }
 
   function makeSpiralSVG(color) {
-    // Spiral symbol — the vortex / destination
+    // Spiral / labyrinth center mark — the vortex / destination
     return `<svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
       <path d="M11 11 C11 9, 13 7, 15 9 C17 11, 15 15, 11 15 C7 15, 5 11, 7 7 C9 3, 15 3, 17 7 C19 11, 17 17, 11 19 C5 19, 3 13, 3 11"
-        fill="none" stroke="${color}" stroke-width="1.2" stroke-linecap="round"/>
-      <circle cx="11" cy="11" r="1.5" fill="${color}"/>
+        fill="none" stroke="${color}" stroke-width="1" stroke-linecap="round"/>
+      <circle cx="11" cy="11" r="1.2" fill="${color}"/>
     </svg>`;
   }
 
@@ -314,9 +351,9 @@
       attributionControl: true,
     });
 
-    // CartoDB Dark Matter — dark, atmospheric map tiles
+    // CartoDB Positron — clean, minimal, gallery-appropriate light tiles
     L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
       {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
@@ -329,6 +366,18 @@
 
     map.on('click', onMapClick);
     map.on('dblclick', onMapDoubleClick);
+
+    // Coordinate readout — updates as you pan
+    function updateCoordReadout() {
+      const center = map.getCenter();
+      const lat = Math.abs(center.lat).toFixed(4);
+      const lng = Math.abs(center.lng).toFixed(4);
+      const ns = center.lat >= 0 ? 'N' : 'S';
+      const ew = center.lng >= 0 ? 'E' : 'W';
+      dom.coordReadout.textContent = `${lat}\u00b0${ns}  ${lng}\u00b0${ew}`;
+    }
+    map.on('move', updateCoordReadout);
+    updateCoordReadout();
   }
 
   // ========================================================================
@@ -351,20 +400,19 @@
           lineJoin: 'round',
         }).addTo(map);
 
-        // Start marker: Third Eye — origin point of the drift
-        const goldColor = '#c9a84c';
+        // Start marker: Third Eye / compass rose — thin black line art
         const startIcon = L.divIcon({
           className: '',
-          html: makeThirdEyeSVG(goldColor),
+          html: makeThirdEyeSVG(INK),
           iconSize: [22, 22],
           iconAnchor: [11, 11],
         });
         const startMarker = L.marker(route.coordinates[0], { icon: startIcon }).addTo(map);
 
-        // End marker: Spiral — the vortex / destination
+        // End marker: Spiral / labyrinth center — thin black line art
         const endIcon = L.divIcon({
           className: '',
-          html: makeSpiralSVG(goldColor),
+          html: makeSpiralSVG(INK),
           iconSize: [22, 22],
           iconAnchor: [11, 11],
         });
@@ -461,11 +509,10 @@
     const latlng = [e.latlng.lat, e.latlng.lng];
     currentDrawing.points.push(latlng);
 
-    // Gold drawing markers
-    const goldColor = '#c9a84c';
+    // Drawing markers: small black circles with white border (clinical, precise)
     const markerIcon = L.divIcon({
       className: '',
-      html: `<div style="width:8px;height:8px;background:${goldColor};border:2px solid rgba(201,168,76,0.3);border-radius:50%;box-shadow:0 0 6px rgba(201,168,76,0.4)"></div>`,
+      html: `<div style="width:8px;height:8px;background:${INK};border:2px solid #ffffff;border-radius:50%"></div>`,
       iconSize: [8, 8],
       iconAnchor: [4, 4],
     });
@@ -475,8 +522,9 @@
     if (currentDrawing.polyline) {
       currentDrawing.polyline.setLatLngs(currentDrawing.points);
     } else if (currentDrawing.points.length > 1) {
+      // Drawing polyline: ink with dashed pattern
       currentDrawing.polyline = L.polyline(currentDrawing.points, {
-        color: goldColor,
+        color: INK,
         weight: 3,
         opacity: 0.8,
         dashArray: '8 4',
@@ -520,7 +568,7 @@
     const notes = dom.routeNotes.value.trim();
 
     if (!name) {
-      dom.routeTitle.style.borderColor = '#d4543a';
+      dom.routeTitle.style.borderColor = '#b5342a';
       dom.routeTitle.focus();
       return;
     }
@@ -548,14 +596,14 @@
 
     try {
       const updated = [...routes, route];
-      await commitRoutes(updated, `Add dérive: ${name}`);
+      await commitRoutes(updated, `Add d\u00e9rive: ${name}`);
       routes = updated;
       finishDrawing();
       renderRoutes();
       renderRouteList();
     } catch (err) {
       console.error('Save failed:', err);
-      alert('Failed to inscribe dérive: ' + err.message);
+      alert('Failed to inscribe d\u00e9rive: ' + err.message);
       dom.btnRouteSave.textContent = 'INSCRIBE';
       dom.btnRouteSave.disabled = false;
     } finally {
@@ -594,6 +642,16 @@
     dom.detailDistance.textContent = `${(route.distance || 0).toFixed(1)} km`;
     dom.detailNotes.textContent = route.notes || '';
     dom.btnDetailDelete.classList.toggle('hidden', !isAuthenticated);
+
+    // Route detail coordinates — like a catalog entry's provenance line
+    if (route.coordinates && route.coordinates.length >= 2) {
+      const start = route.coordinates[0];
+      const end = route.coordinates[route.coordinates.length - 1];
+      dom.detailCoordinates.textContent =
+        `${formatCoord(start[0], start[1])} \u2192 ${formatCoord(end[0], end[1])}`;
+    } else {
+      dom.detailCoordinates.textContent = '';
+    }
 
     showModal(dom.detailModal);
     highlightRoute(routeId);
@@ -638,13 +696,13 @@
   }
 
   async function deleteRoute(routeId) {
-    if (!confirm('Erase this dérive from the archive?')) return;
+    if (!confirm('Erase this d\u00e9rive from the archive?')) return;
 
     const updated = routes.filter((r) => r.id !== routeId);
 
     try {
       const route = routes.find((r) => r.id === routeId);
-      await commitRoutes(updated, `Remove dérive: ${route ? route.name : routeId}`);
+      await commitRoutes(updated, `Remove d\u00e9rive: ${route ? route.name : routeId}`);
       routes = updated;
       hideModal(dom.detailModal);
       resetHighlight();
@@ -652,7 +710,7 @@
       renderRouteList();
     } catch (err) {
       console.error('Delete failed:', err);
-      alert('Failed to erase dérive: ' + err.message);
+      alert('Failed to erase d\u00e9rive: ' + err.message);
     }
   }
 
@@ -707,7 +765,7 @@
             const props = feature.properties || {};
             newRoutes.push({
               id: props.id || uuid(),
-              name: props.name || 'Imported Dérive',
+              name: props.name || 'Imported D\u00e9rive',
               date: props.date || new Date().toISOString().split('T')[0],
               notes: props.notes || '',
               coordinates: coords,
@@ -730,13 +788,13 @@
       }
 
       if (newRoutes.length === 0) {
-        alert('No valid dérives found in file.');
+        alert('No valid d\u00e9rives found in file.');
         return;
       }
 
       if (isAuthenticated) {
         const updated = [...routes, ...newRoutes];
-        await commitRoutes(updated, `Import ${newRoutes.length} dérive(s)`);
+        await commitRoutes(updated, `Import ${newRoutes.length} d\u00e9rive(s)`);
         routes = updated;
       } else {
         routes = [...routes, ...newRoutes];
@@ -762,6 +820,16 @@
 
   function hideModal(modal) {
     modal.classList.add('hidden');
+  }
+
+  // ========================================================================
+  // Rotating Situationist Quotes
+  // ========================================================================
+
+  function setRandomQuote() {
+    const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    dom.epigraphText.textContent = `\u201C${quote.text}\u201D`;
+    dom.epigraphAuthor.textContent = `\u2014 ${quote.author}`;
   }
 
   // ========================================================================
@@ -894,6 +962,7 @@
     initMap();
     loadToken();
     bindEvents();
+    setRandomQuote();
 
     // Load routes from the repo (public, no auth needed)
     routes = await fetchRoutesFromSite();

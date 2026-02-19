@@ -18,19 +18,6 @@
 </head>
 <body>
 
-  <!-- SVG filter for route glow (referenced by CSS) -->
-  <svg width="0" height="0" style="position:absolute">
-    <defs>
-      <filter id="route-glow">
-        <feGaussianBlur stdDeviation="2" result="blur"/>
-        <feMerge>
-          <feMergeNode in="blur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
-  </svg>
-
   <!-- Header -->
   <header id="header">
     <div class="header-left">
@@ -52,6 +39,9 @@
   <!-- Map -->
   <div id="map"></div>
 
+  <!-- Coordinate Readout — museum wall label -->
+  <div id="coord-readout" class="coord-readout"></div>
+
   <!-- New Route FAB -->
   <button id="btn-new-route" class="fab hidden" aria-label="Inscribe new dérive">+</button>
 
@@ -69,8 +59,8 @@
       <input type="file" id="import-file" accept=".json,.geojson" class="hidden">
     </div>
     <div class="panel-epigraph">
-      &ldquo;The spectacle is not a collection of images; it is a social relation between people, mediated by images.&rdquo;
-      <span class="epigraph-author">&mdash; Guy Debord</span>
+      <span id="epigraph-text"></span>
+      <span id="epigraph-author" class="epigraph-author"></span>
     </div>
   </aside>
 
@@ -131,6 +121,7 @@
         <span class="meta-sep">&middot;</span>
         <span id="detail-distance"></span>
       </div>
+      <div id="detail-coordinates" class="detail-coordinates"></div>
       <p id="detail-notes" class="detail-notes"></p>
       <div class="modal-actions">
         <button id="btn-detail-close" class="text-btn-sm">CLOSE</button>

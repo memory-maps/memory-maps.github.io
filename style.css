@@ -1,28 +1,27 @@
 /* ==========================================================================
-   MEMORY MAPS — Occult-Cartographic Design System
+   MEMORY MAPS — MoMA Exhibition Design System
+   "Urban Esoterica: Cartographies of the Unseen"
    ========================================================================== */
 
 :root {
-  /* Dark occult palette */
-  --void: #08080f;
-  --obsidian: #0f0f18;
-  --smoke: #1a1a2e;
-  --ash: #2a2a3e;
-  --fog: #6a6a7e;
-  --silver: #8a8a9e;
-  --bone: #c8c5bc;
-  --gold: #c9a84c;
-  --gold-dim: rgba(201, 168, 76, 0.3);
-  --gold-glow: rgba(201, 168, 76, 0.15);
-  --ember: #d4543a;
+  /* MoMA warm museum palette */
+  --white: #ffffff;
+  --gallery: #f8f7f4;
+  --linen: #eae8e3;
+  --stone: #c4c1b9;
+  --slate: #6b6860;
+  --charcoal: #3a3835;
+  --ink: #1a1918;
+  --ochre: #9a7b4f;
+  --crimson: #b5342a;
 
   --font-display: 'Cinzel', 'Times New Roman', serif;
   --font: 'Space Grotesk', -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --panel-width: 360px;
   --header-height: 64px;
   --radius: 2px;
-  --shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
 /* Reset */
@@ -40,13 +39,13 @@ html, body {
 body {
   font-family: var(--font);
   font-size: 14px;
-  color: var(--bone);
-  background: var(--void);
+  color: var(--charcoal);
+  background: var(--white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Sacred Geometry — Seed of Life background */
+/* Sacred Geometry — Meander / Labyrinth pattern (pathways, drift) */
 body::before {
   content: '';
   position: fixed;
@@ -54,10 +53,10 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3Ccircle cx='100' cy='60' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3Ccircle cx='100' cy='140' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3Ccircle cx='65.36' cy='80' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3Ccircle cx='134.64' cy='80' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3Ccircle cx='65.36' cy='120' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3Ccircle cx='134.64' cy='120' r='40' fill='none' stroke='%23c9a84c' stroke-width='0.5'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath d='M0 24 h12 v-12 h24 v24 h-24 v-12 h12' fill='none' stroke='%23c4c1b9' stroke-width='0.6'/%3E%3C/svg%3E");
   background-repeat: repeat;
-  background-size: 200px 200px;
-  opacity: 0.03;
+  background-size: 48px 48px;
+  opacity: 0.06;
 }
 
 .hidden {
@@ -74,8 +73,8 @@ body::before {
   left: 0;
   right: 0;
   height: var(--header-height);
-  background: var(--obsidian);
-  border-bottom: 1px solid var(--ash);
+  background: var(--white);
+  border-bottom: 1px solid var(--linen);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -89,14 +88,14 @@ body::before {
   font-weight: 700;
   letter-spacing: 5px;
   line-height: 1;
-  color: var(--gold);
+  color: var(--ochre);
 }
 
 .subtitle {
   font-size: 10px;
   font-weight: 300;
   letter-spacing: 2px;
-  color: var(--fog);
+  color: var(--slate);
   margin-top: 3px;
   text-transform: uppercase;
 }
@@ -114,19 +113,19 @@ body::before {
 .icon-btn {
   width: 40px;
   height: 40px;
-  border: 1px solid var(--ash);
-  background: var(--obsidian);
+  border: 1px solid var(--linen);
+  background: var(--white);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--bone);
+  color: var(--charcoal);
   transition: background 0.15s, border-color 0.15s;
 }
 
 .icon-btn:hover {
-  background: var(--smoke);
-  border-color: var(--fog);
+  background: var(--gallery);
+  border-color: var(--stone);
 }
 
 .text-btn {
@@ -135,16 +134,16 @@ body::before {
   font-weight: 600;
   letter-spacing: 3px;
   padding: 10px 20px;
-  border: 1px solid var(--gold);
+  border: 1px solid var(--ink);
   background: transparent;
-  color: var(--gold);
+  color: var(--ink);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .text-btn:hover {
-  background: var(--gold);
-  color: var(--void);
+  background: var(--ink);
+  color: var(--white);
 }
 
 .text-btn-sm {
@@ -153,47 +152,47 @@ body::before {
   font-weight: 600;
   letter-spacing: 2px;
   padding: 8px 16px;
-  border: 1px solid var(--ash);
+  border: 1px solid var(--linen);
   background: transparent;
-  color: var(--bone);
+  color: var(--charcoal);
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .text-btn-sm:hover {
-  border-color: var(--gold);
-  color: var(--gold);
+  border-color: var(--ink);
+  color: var(--ink);
 }
 
 .text-btn-sm.primary {
-  background: var(--gold);
-  color: var(--void);
-  border-color: var(--gold);
+  background: var(--ink);
+  color: var(--white);
+  border-color: var(--ink);
 }
 
 .text-btn-sm.primary:hover {
-  background: #b8973f;
+  background: var(--charcoal);
 }
 
 .text-btn-sm.danger {
-  color: var(--ember);
-  border-color: var(--ember);
+  color: var(--crimson);
+  border-color: var(--crimson);
 }
 
 .text-btn-sm.danger:hover {
-  background: var(--ember);
-  color: var(--bone);
+  background: var(--crimson);
+  color: var(--white);
 }
 
-/* FAB */
+/* FAB — simple, authoritative black */
 .fab {
   position: fixed;
   bottom: 32px;
   right: 32px;
   width: 56px;
   height: 56px;
-  background: var(--gold);
-  color: var(--void);
+  background: var(--ink);
+  color: var(--white);
   border: none;
   font-size: 28px;
   font-weight: 300;
@@ -202,13 +201,13 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 24px rgba(201, 168, 76, 0.3);
+  box-shadow: 0 4px 24px rgba(26, 25, 24, 0.2);
   transition: transform 0.2s, box-shadow 0.15s;
 }
 
 .fab:hover {
   transform: scale(1.08);
-  box-shadow: 0 6px 32px rgba(201, 168, 76, 0.45);
+  box-shadow: 0 6px 32px rgba(26, 25, 24, 0.3);
 }
 
 .fab:active {
@@ -228,9 +227,9 @@ body::before {
   z-index: 1;
 }
 
-/* Leaflet controls — dark */
+/* Leaflet controls — light museum */
 .leaflet-control-zoom {
-  border: 1px solid var(--ash) !important;
+  border: 1px solid var(--linen) !important;
   box-shadow: var(--shadow) !important;
   border-radius: 0 !important;
 }
@@ -240,10 +239,10 @@ body::before {
   height: 36px !important;
   line-height: 36px !important;
   font-size: 16px !important;
-  color: var(--bone) !important;
-  background: var(--obsidian) !important;
+  color: var(--charcoal) !important;
+  background: var(--white) !important;
   border: none !important;
-  border-bottom: 1px solid var(--ash) !important;
+  border-bottom: 1px solid var(--linen) !important;
 }
 
 .leaflet-control-zoom a:last-child {
@@ -251,38 +250,32 @@ body::before {
 }
 
 .leaflet-control-zoom a:hover {
-  background: var(--smoke) !important;
-  color: var(--gold) !important;
+  background: var(--gallery) !important;
+  color: var(--ink) !important;
 }
 
 .leaflet-control-attribution {
   font-family: var(--font) !important;
   font-size: 9px !important;
   letter-spacing: 0.5px !important;
-  background: rgba(8, 8, 15, 0.85) !important;
-  color: var(--fog) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: var(--slate) !important;
   padding: 4px 8px !important;
 }
 
 .leaflet-control-attribution a {
-  color: var(--silver) !important;
+  color: var(--charcoal) !important;
 }
 
 /* ==========================================================================
-   Route Glow Effects
+   Route Effects
    ========================================================================== */
-
-/* Leaflet SVG paths get a glow filter */
-.leaflet-overlay-pane svg {
-  filter: url(#route-glow);
-}
 
 .route-highlight {
   stroke-opacity: 1 !important;
   stroke-width: 5 !important;
 }
 
-/* Animated dash for selected/drawing routes */
 @keyframes dash-flow {
   to { stroke-dashoffset: -24; }
 }
@@ -301,8 +294,8 @@ body::before {
   right: 0;
   width: var(--panel-width);
   height: calc(100% - var(--header-height));
-  background: var(--obsidian);
-  border-left: 1px solid var(--ash);
+  background: var(--white);
+  border-left: 1px solid var(--linen);
   z-index: 800;
   display: flex;
   flex-direction: column;
@@ -327,19 +320,19 @@ body::before {
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 3px;
-  color: var(--gold);
+  color: var(--ink);
 }
 
 .route-count {
   font-size: 11px;
   font-weight: 400;
   letter-spacing: 1px;
-  color: var(--fog);
+  color: var(--slate);
 }
 
 .panel-divider {
   height: 1px;
-  background: var(--ash);
+  background: var(--linen);
   margin: 16px 24px;
 }
 
@@ -349,7 +342,7 @@ body::before {
   padding: 0 24px;
 }
 
-/* Dark scrollbar */
+/* Warm gray scrollbar */
 .route-list::-webkit-scrollbar {
   width: 4px;
 }
@@ -359,14 +352,14 @@ body::before {
 }
 
 .route-list::-webkit-scrollbar-thumb {
-  background: var(--gold-dim);
+  background: var(--stone);
   border-radius: 2px;
 }
 
 /* Route Card */
 .route-card {
   padding: 16px 0;
-  border-bottom: 1px solid var(--smoke);
+  border-bottom: 1px solid var(--linen);
   cursor: pointer;
   transition: padding-left 0.15s, background 0.15s;
   display: flex;
@@ -386,7 +379,7 @@ body::before {
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 300;
-  color: var(--ash);
+  color: var(--linen);
   line-height: 1;
   min-width: 40px;
   text-align: right;
@@ -406,13 +399,13 @@ body::before {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--bone);
+  color: var(--charcoal);
 }
 
 .route-card-meta {
   font-size: 11px;
   font-weight: 400;
-  color: var(--fog);
+  color: var(--slate);
   letter-spacing: 0.5px;
 }
 
@@ -422,23 +415,22 @@ body::before {
   min-height: 40px;
   border-radius: 2px;
   flex-shrink: 0;
-  box-shadow: 0 0 6px currentColor;
 }
 
 .panel-footer {
   padding: 16px 24px;
-  border-top: 1px solid var(--ash);
+  border-top: 1px solid var(--linen);
   display: flex;
   gap: 8px;
 }
 
-/* Panel Epigraph */
+/* Panel Epigraph — Situationist quotes */
 .panel-epigraph {
   padding: 16px 24px;
-  border-top: 1px solid var(--smoke);
+  border-top: 1px solid var(--linen);
   font-size: 10px;
   font-style: italic;
-  color: var(--fog);
+  color: var(--slate);
   letter-spacing: 0.3px;
   line-height: 1.6;
   opacity: 0.7;
@@ -450,11 +442,11 @@ body::before {
   font-style: normal;
   letter-spacing: 1px;
   font-size: 9px;
-  color: var(--gold-dim);
+  color: var(--stone);
 }
 
 /* ==========================================================================
-   Modals
+   Modals — white gallery scrim
    ========================================================================== */
 
 .modal {
@@ -469,34 +461,18 @@ body::before {
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(8, 8, 15, 0.88);
+  background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(8px);
 }
 
 .modal-content {
   position: relative;
-  background: var(--obsidian);
-  border: 1px solid var(--ash);
+  background: var(--white);
+  border: 1px solid var(--linen);
   padding: 40px;
   max-width: 400px;
   width: 90%;
   box-shadow: var(--shadow-lg);
-}
-
-/* Noise/grain texture on modal panels */
-.modal-content::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.04;
-  background: repeating-radial-gradient(
-    circle at 50% 50%,
-    transparent 0,
-    var(--obsidian) 1px,
-    transparent 2px,
-    transparent 4px
-  );
 }
 
 .modal-content h2 {
@@ -505,12 +481,12 @@ body::before {
   font-weight: 700;
   letter-spacing: 3px;
   margin-bottom: 8px;
-  color: var(--gold);
+  color: var(--ink);
 }
 
 .modal-desc {
   font-size: 13px;
-  color: var(--fog);
+  color: var(--slate);
   margin-bottom: 24px;
   line-height: 1.5;
 }
@@ -524,28 +500,23 @@ body::before {
   font-size: 14px;
   padding: 12px 0;
   border: none;
-  border-bottom: 1px solid var(--ash);
+  border-bottom: 1px solid var(--linen);
   outline: none;
   background: transparent;
-  color: var(--bone);
+  color: var(--charcoal);
   transition: border-color 0.15s;
   letter-spacing: 0.5px;
 }
 
 .modal-content input:focus,
 .modal-content textarea:focus {
-  border-color: var(--gold);
+  border-color: var(--ink);
 }
 
 .modal-content input::placeholder,
 .modal-content textarea::placeholder {
-  color: var(--fog);
-  opacity: 0.6;
-}
-
-/* Date input color fix for dark theme */
-.modal-content input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.7);
+  color: var(--stone);
+  opacity: 0.8;
 }
 
 .modal-content textarea {
@@ -562,7 +533,7 @@ body::before {
 
 .error-msg {
   font-size: 12px;
-  color: var(--ember);
+  color: var(--crimson);
   margin-top: 8px;
   letter-spacing: 0.5px;
 }
@@ -573,7 +544,7 @@ body::before {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 2px;
-  color: var(--fog);
+  color: var(--slate);
   margin-bottom: 20px;
 }
 
@@ -584,7 +555,7 @@ body::before {
 
 .form-hint {
   font-size: 12px;
-  color: var(--fog);
+  color: var(--slate);
   margin-top: 8px;
   line-height: 1.5;
   letter-spacing: 0.3px;
@@ -594,10 +565,10 @@ body::before {
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 2px;
-  color: var(--fog);
+  color: var(--slate);
   margin-top: 16px;
   padding: 12px 0;
-  border-top: 1px solid var(--smoke);
+  border-top: 1px solid var(--linen);
 }
 
 /* Route Detail */
@@ -605,26 +576,35 @@ body::before {
   font-family: var(--font-display);
   font-size: 64px;
   font-weight: 200;
-  color: var(--ash);
+  color: var(--linen);
   line-height: 1;
   margin-bottom: 8px;
 }
 
 .detail-meta {
   font-size: 12px;
-  color: var(--fog);
+  color: var(--slate);
   letter-spacing: 1px;
-  margin-bottom: 20px;
+  margin-bottom: 4px;
 }
 
 .meta-sep {
   margin: 0 8px;
 }
 
+.detail-coordinates {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--stone);
+  margin-bottom: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
 .detail-notes {
   font-size: 14px;
   line-height: 1.7;
-  color: var(--silver);
+  color: var(--charcoal);
   white-space: pre-wrap;
 }
 
@@ -637,29 +617,13 @@ body::before {
   top: calc(var(--header-height) + 16px);
   left: 16px;
   width: 320px;
-  background: var(--obsidian);
-  border: 1px solid var(--ash);
+  background: var(--white);
+  border: 1px solid var(--linen);
   padding: 24px;
   z-index: 1200;
   box-shadow: var(--shadow-lg);
   max-height: calc(100vh - var(--header-height) - 32px);
   overflow-y: auto;
-}
-
-/* Noise texture on route panel */
-.route-panel::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.04;
-  background: repeating-radial-gradient(
-    circle at 50% 50%,
-    transparent 0,
-    var(--obsidian) 1px,
-    transparent 2px,
-    transparent 4px
-  );
 }
 
 .route-panel h2 {
@@ -668,7 +632,7 @@ body::before {
   font-weight: 700;
   letter-spacing: 3px;
   margin-bottom: 16px;
-  color: var(--gold);
+  color: var(--ink);
 }
 
 .route-panel .form-label {
@@ -683,27 +647,23 @@ body::before {
   font-size: 14px;
   padding: 10px 0;
   border: none;
-  border-bottom: 1px solid var(--ash);
+  border-bottom: 1px solid var(--linen);
   outline: none;
   background: transparent;
-  color: var(--bone);
+  color: var(--charcoal);
   transition: border-color 0.15s;
   letter-spacing: 0.5px;
 }
 
 .route-panel input::placeholder,
 .route-panel textarea::placeholder {
-  color: var(--fog);
-  opacity: 0.6;
-}
-
-.route-panel input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.7);
+  color: var(--stone);
+  opacity: 0.8;
 }
 
 .route-panel input:focus,
 .route-panel textarea:focus {
-  border-color: var(--gold);
+  border-color: var(--ink);
 }
 
 .route-panel textarea {
@@ -732,7 +692,7 @@ body::before {
 }
 
 /* ==========================================================================
-   Drawing Indicator
+   Drawing Indicator — black pill with ochre pulse
    ========================================================================== */
 
 .draw-indicator {
@@ -740,9 +700,9 @@ body::before {
   top: calc(var(--header-height) + 16px);
   left: 50%;
   transform: translateX(-50%);
-  background: var(--obsidian);
-  border: 1px solid var(--gold-dim);
-  color: var(--gold);
+  background: var(--ink);
+  border: 1px solid var(--charcoal);
+  color: var(--white);
   padding: 10px 24px;
   font-size: 11px;
   font-weight: 600;
@@ -751,13 +711,13 @@ body::before {
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 4px 24px rgba(201, 168, 76, 0.15);
+  box-shadow: 0 4px 24px rgba(26, 25, 24, 0.15);
 }
 
 .draw-pulse {
   width: 8px;
   height: 8px;
-  background: var(--gold);
+  background: var(--ochre);
   border-radius: 50%;
   animation: pulse 1.5s infinite;
 }
@@ -765,6 +725,28 @@ body::before {
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(1.4); }
+}
+
+/* ==========================================================================
+   Coordinate Readout — museum wall label
+   ========================================================================== */
+
+.coord-readout {
+  position: fixed;
+  bottom: 6px;
+  left: 56px;
+  z-index: 900;
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--slate);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  padding: 4px 10px;
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+  pointer-events: none;
 }
 
 /* ==========================================================================
@@ -778,13 +760,13 @@ body::before {
 
 .empty-state-icon {
   font-size: 48px;
-  color: var(--ash);
+  color: var(--linen);
   margin-bottom: 16px;
 }
 
 .empty-state p {
   font-size: 12px;
-  color: var(--fog);
+  color: var(--slate);
   letter-spacing: 0.5px;
   line-height: 1.8;
   font-style: italic;
@@ -823,10 +805,10 @@ body::before {
     width: 100%;
     height: 50vh;
     border-left: none;
-    border-top: 1px solid var(--ash);
+    border-top: 1px solid var(--linen);
     border-radius: 16px 16px 0 0;
     transform: translateY(0);
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
   }
 
   .panel.collapsed {
@@ -838,7 +820,7 @@ body::before {
     display: block;
     width: 40px;
     height: 4px;
-    background: var(--ash);
+    background: var(--linen);
     border-radius: 2px;
     margin: 12px auto;
   }
@@ -880,6 +862,12 @@ body::before {
     font-size: 10px;
     padding: 8px 16px;
   }
+
+  .coord-readout {
+    bottom: 4px;
+    left: 48px;
+    font-size: 9px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -902,8 +890,8 @@ body::before {
   box-shadow: var(--shadow) !important;
   font-family: var(--font) !important;
   padding: 0 !important;
-  background: var(--obsidian) !important;
-  color: var(--bone) !important;
+  background: var(--white) !important;
+  color: var(--charcoal) !important;
 }
 
 .leaflet-popup-content {
@@ -915,11 +903,11 @@ body::before {
 
 .leaflet-popup-tip {
   box-shadow: none !important;
-  background: var(--obsidian) !important;
+  background: var(--white) !important;
 }
 
 /* ==========================================================================
-   Global Scrollbar
+   Global Scrollbar — thin, warm gray
    ========================================================================== */
 
 ::-webkit-scrollbar {
@@ -927,16 +915,16 @@ body::before {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--void);
+  background: var(--white);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--ash);
+  background: var(--stone);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gold-dim);
+  background: var(--slate);
 }
 
 /* ==========================================================================
@@ -944,7 +932,7 @@ body::before {
    ========================================================================== */
 
 @media print {
-  #header, .panel, .fab, .modal, .draw-indicator {
+  #header, .panel, .fab, .modal, .draw-indicator, .coord-readout {
     display: none !important;
   }
 
